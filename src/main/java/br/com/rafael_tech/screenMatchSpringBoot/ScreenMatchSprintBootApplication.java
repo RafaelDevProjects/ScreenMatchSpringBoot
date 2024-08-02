@@ -1,6 +1,6 @@
-package br.com.rafael_tech.screenMatchSprintBoot;
+package br.com.rafael_tech.screenMatchSpringBoot;
 
-import br.com.rafael_tech.screenMatchSprintBoot.main.Main;
+import br.com.rafael_tech.screenMatchSpringBoot.main.Main;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

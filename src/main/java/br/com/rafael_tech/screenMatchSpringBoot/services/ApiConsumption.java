@@ -1,4 +1,4 @@
-package br.com.rafael_tech.screenMatchSprintBoot.services;
+package br.com.rafael_tech.screenMatchSpringBoot.services;
 
 import java.io.IOException;
 import java.net.URI;

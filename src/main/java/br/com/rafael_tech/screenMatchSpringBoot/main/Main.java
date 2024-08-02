@@ -1,10 +1,9 @@
-package br.com.rafael_tech.screenMatchSprintBoot.main;
+package br.com.rafael_tech.screenMatchSpringBoot.main;
 
-import br.com.rafael_tech.screenMatchSprintBoot.model.EpisodeData;
-import br.com.rafael_tech.screenMatchSprintBoot.model.SeasonData;
-import br.com.rafael_tech.screenMatchSprintBoot.model.SerieData;
-import br.com.rafael_tech.screenMatchSprintBoot.services.ApiConsumption;
-import br.com.rafael_tech.screenMatchSprintBoot.services.ConvertData;
+import br.com.rafael_tech.screenMatchSpringBoot.model.SeasonData;
+import br.com.rafael_tech.screenMatchSpringBoot.model.SerieData;
+import br.com.rafael_tech.screenMatchSpringBoot.services.ApiConsumption;
+import br.com.rafael_tech.screenMatchSpringBoot.services.ConvertData;
 
 import java.util.ArrayList;
 import java.util.List;

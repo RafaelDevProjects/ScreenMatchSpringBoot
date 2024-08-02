@@ -1,4 +1,4 @@
-package br.com.rafael_tech.screenMatchSprintBoot.model;
+package br.com.rafael_tech.screenMatchSpringBoot.model;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
