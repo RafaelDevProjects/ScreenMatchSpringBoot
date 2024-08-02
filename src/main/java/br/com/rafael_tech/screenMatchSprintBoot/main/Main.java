@@ -47,5 +47,6 @@ public class Main {
 
         seasons.forEach(t -> t.episodes().forEach(e -> System.out.println("episode " + e.episodeNumber() + ": " + e.title())));
 
+
     }
 }
