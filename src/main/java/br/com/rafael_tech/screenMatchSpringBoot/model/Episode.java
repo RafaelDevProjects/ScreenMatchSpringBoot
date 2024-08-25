@@ -26,6 +26,8 @@ public class Episode {
         }
     }
 
+
+
     public String getTitle() {
         return title;
     }
