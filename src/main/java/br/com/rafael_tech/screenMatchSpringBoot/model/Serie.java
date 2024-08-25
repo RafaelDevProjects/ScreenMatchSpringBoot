@@ -1,15 +1,28 @@
 package br.com.rafael_tech.screenMatchSpringBoot.model;
 
+import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.OptionalDouble;
 
+@Entity
+@Table(name = "series")
 public class Serie {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(unique = true)
     private String title;
     private Double rating;
     private Integer totalSeasons;
     private String plot;
+    @Enumerated(EnumType.STRING)
     private Category genre;
     private String actors;
     private String poster;
+    @Transient
+    private List<Episode> episorios = new ArrayList<>();
 
     public Serie(SerieData serieData){
         this.title = serieData.title();
@@ -19,6 +32,23 @@ public class Serie {
         this.genre = Category.fromString(serieData.genre().split(",")[0].trim());
         this.actors = serieData.actors();
         this.poster = serieData.poster();
+
+    }
+
+    public List<Episode> getEpisorios() {
+        return episorios;
+    }
+
+    public void setEpisorios(List<Episode> episorios) {
+        this.episorios = episorios;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getTitle() {

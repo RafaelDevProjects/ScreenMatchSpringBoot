@@ -3,20 +3,27 @@ package br.com.rafael_tech.screenMatchSpringBoot.main;
 import br.com.rafael_tech.screenMatchSpringBoot.model.SeasonData;
 import br.com.rafael_tech.screenMatchSpringBoot.model.Serie;
 import br.com.rafael_tech.screenMatchSpringBoot.model.SerieData;
+import br.com.rafael_tech.screenMatchSpringBoot.repository.SerieRepository;
 import br.com.rafael_tech.screenMatchSpringBoot.services.ApiConsumption;
 import br.com.rafael_tech.screenMatchSpringBoot.services.ConvertData;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class Main {
 
-    private Scanner scanner = new Scanner(System.in);
+    private final Scanner scanner = new Scanner(System.in);
     private static final String ADDRESS = "https://www.omdbapi.com/?t=";
     private static final String API_KEY = "&apikey=38198bea";
-    private List<SerieData> serieData = new ArrayList<>();
-    private ApiConsumption apiConsumption = new ApiConsumption();
-    private ConvertData convertData = new ConvertData();
+    private final List<SerieData> serieData = new ArrayList<>();
+    private final ApiConsumption apiConsumption = new ApiConsumption();
+    private final ConvertData convertData = new ConvertData();
+    private SerieRepository repository;
+
+    public Main(SerieRepository repository){
+        this.repository = repository;
+    }
 
     public void displayMenu() {
         var option = -1;
@@ -54,7 +61,9 @@ public class Main {
 
     private void searchWebSerie() {
         SerieData data = getDadosSerie();
-        serieData.add(data);
+        Serie serie = new Serie(data);
+        //serieData.add(data);
+        repository.save(serie);
         System.out.println(data);
     }
 
