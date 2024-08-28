@@ -1,12 +1,12 @@
 package br.com.rafael_tech.screenMatchSpringBoot.main;
 
+import br.com.rafael_tech.screenMatchSpringBoot.model.Episode;
 import br.com.rafael_tech.screenMatchSpringBoot.model.SeasonData;
 import br.com.rafael_tech.screenMatchSpringBoot.model.Serie;
 import br.com.rafael_tech.screenMatchSpringBoot.model.SerieData;
 import br.com.rafael_tech.screenMatchSpringBoot.repository.SerieRepository;
 import br.com.rafael_tech.screenMatchSpringBoot.services.ApiConsumption;
 import br.com.rafael_tech.screenMatchSpringBoot.services.ConvertData;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,7 +19,9 @@ public class Main {
     private final List<SerieData> serieData = new ArrayList<>();
     private final ApiConsumption apiConsumption = new ApiConsumption();
     private final ConvertData convertData = new ConvertData();
+
     private SerieRepository repository;
+    private List<Serie> series = new ArrayList<>();
 
     public Main(SerieRepository repository){
         this.repository = repository;
@@ -63,7 +65,7 @@ public class Main {
         SerieData data = getDadosSerie();
         Serie serie = new Serie(data);
         //serieData.add(data);
-        repository.save(serie);
+        repository.save(serie); // salva a serie no banco de dados
         System.out.println(data);
     }
 
@@ -76,23 +78,37 @@ public class Main {
     }
 
     private void searchEpisodeForSerie(){
-        SerieData serieData = getDadosSerie();
-        List<SeasonData> seasons = new ArrayList<>();
+        showSearchedSerie();
+        System.out.println("Chose one serie to see all episodes: ");
+        var serieName = scanner.nextLine();
 
-        for (int i = 1; i <= serieData.totalSeasons(); i++) {
-            var json = apiConsumption.getData(ADDRESS + serieData.title().replace(" ", "+") + "&season=" + i + API_KEY);
-            SeasonData seasonData = convertData.getData(json, SeasonData.class);
-            seasons.add(seasonData);
+        Optional<Serie> serie = series.stream()
+                .filter(s -> s.getTitle().toLowerCase().contains(serieName.toLowerCase()))
+                .findFirst();
+
+        if(serie.isPresent()) {
+            var serieFounded = serie.get();
+            List<SeasonData> seasonsData = new ArrayList<>();
+            for (int i = 1; i <= serieFounded.getTotalSeasons(); i++) {
+                var json = apiConsumption.getData(ADDRESS + serieFounded.getTitle().replace(" ", "+") + "&season=" + i + API_KEY);
+                SeasonData seasonData = convertData.getData(json, SeasonData.class);
+                seasonsData.add(seasonData);
+            }
+            seasonsData.forEach(System.out::println);
+
+            List<Episode> episodes = seasonsData.stream()
+                    .flatMap(d -> d.episodes().stream()
+                            .map(e -> new Episode(d.seasonNumber(), e)))
+                    .collect(Collectors.toList());
+            serieFounded.setEpisodes(episodes);
+            repository.save(serieFounded);
+        } else {
+            System.out.println("Series not Found");
         }
-        seasons.forEach(System.out::println);
     }
 
     private void showSearchedSerie(){
-        List<Serie> series = new ArrayList<>();
-        series = serieData.stream()
-                .map(d -> new Serie(d))
-                        .collect(Collectors.toList());
-
+        series = repository.findAll(); // pega todas as series do repositorio no banco de dados
         series.stream()
                 .sorted(Comparator.comparing(Serie::getGenre))
                 .forEach(System.out::println);

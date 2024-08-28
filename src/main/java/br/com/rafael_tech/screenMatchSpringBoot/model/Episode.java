@@ -1,16 +1,27 @@
 package br.com.rafael_tech.screenMatchSpringBoot.model;
 
+import jakarta.persistence.*;
+import org.hibernate.annotations.ManyToAny;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.SortedMap;
 
+@Entity
+@Table(name = "episodios")
 public class Episode {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String title;
     private Integer seasonNumber;
     private Integer episodeNumber;
     private LocalDate realeaseDate;
     private Double rating;
-    private String plot;
+    @ManyToOne
+    private Serie serie;
+
+    public Episode(){};
 
     public Episode(Integer seasonNumber, EpisodeData episodeData) {
         this.seasonNumber = seasonNumber;
@@ -26,7 +37,21 @@ public class Episode {
         }
     }
 
+    public Long getId() {
+        return id;
+    }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Serie getSerie() {
+        return serie;
+    }
+
+    public void setSerie(Serie serie) {
+        this.serie = serie;
+    }
 
     public String getTitle() {
         return title;
@@ -68,13 +93,6 @@ public class Episode {
         this.rating = rating;
     }
 
-    public String getPlot() {
-        return plot;
-    }
-
-    public void setPlot(String plot) {
-        this.plot = plot;
-    }
 
     @Override
     public String toString() {
