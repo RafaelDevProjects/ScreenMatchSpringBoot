@@ -13,11 +13,10 @@ public class Main {
     private final Scanner scanner = new Scanner(System.in);
     private static final String ADDRESS = "https://www.omdbapi.com/?t=";
     private static final String API_KEY = "&apikey=38198bea";
-    private final List<SerieData> serieData = new ArrayList<>();
     private final ApiConsumption apiConsumption = new ApiConsumption();
     private final ConvertData convertData = new ConvertData();
 
-    private SerieRepository repository;
+    private final SerieRepository repository;
     private List<Serie> series = new ArrayList<>();
 
     public Main(SerieRepository repository){
@@ -35,8 +34,9 @@ public class Main {
                     5 - Search Series from actor
                     6 - Top 5 Series
                     7 - Search Series from category
-                    8 - Search for series with less than X seasons                                    
-                    0 - exit                                 
+                    8 - Search for series with less than X seasons
+                    8 - Search for episode with excerpt
+                    0 - exit
                     """;
 
             System.out.println(menu);
@@ -67,6 +67,8 @@ public class Main {
                     break;
                 case 8:
                     filterByNumberOfSeasons();
+                case 9:
+                    searchEpisodeForExcerpt();
                 case 0:
                     System.out.println("exit...");
                     break;
@@ -75,7 +77,6 @@ public class Main {
             }
         }
     }
-
 
 
     /**
@@ -212,11 +213,22 @@ public class Main {
         int qntSeason = scanner.nextInt();
         System.out.println("Enter the minimum rating that films must have: ");
         var rating = scanner.nextDouble();
-        List<Serie> filterSeries = repository.findByTotalSeasonsLessThanEqualAndRatingGreaterThanEqual(qntSeason, rating);
+        List<Serie> filterSeries = repository.seriesBySeasonsAndRating(qntSeason, rating);
         System.out.println("-----Filter Series-----");
         filterSeries.forEach(s ->
                 System.out.println(s.getTitle() + " - Number of Seasons: " + s.getTotalSeasons() + " | Rating: " + s.getRating()));
     }
+
+    /**
+     * Busca um Episodio pelo trecho
+     */
+    private void searchEpisodeForExcerpt() {
+        System.out.println("What is the name of Episode? ");
+        var excerptEpisode = scanner.nextLine();
+        List<Episode> episodeFounded = repository.episodesForExecerpt(excerptEpisode);
+        episodeFounded.forEach(System.out::println);
+    }
+
 
 
 

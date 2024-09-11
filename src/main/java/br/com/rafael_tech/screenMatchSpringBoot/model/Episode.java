@@ -53,6 +53,7 @@ public class Episode {
         this.serie = serie;
     }
 
+
     public String getTitle() {
         return title;
     }
