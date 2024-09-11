@@ -1,9 +1,6 @@
 package br.com.rafael_tech.screenMatchSpringBoot.main;
 
-import br.com.rafael_tech.screenMatchSpringBoot.model.Episode;
-import br.com.rafael_tech.screenMatchSpringBoot.model.SeasonData;
-import br.com.rafael_tech.screenMatchSpringBoot.model.Serie;
-import br.com.rafael_tech.screenMatchSpringBoot.model.SerieData;
+import br.com.rafael_tech.screenMatchSpringBoot.model.*;
 import br.com.rafael_tech.screenMatchSpringBoot.repository.SerieRepository;
 import br.com.rafael_tech.screenMatchSpringBoot.services.ApiConsumption;
 import br.com.rafael_tech.screenMatchSpringBoot.services.ConvertData;
@@ -31,10 +28,14 @@ public class Main {
         var option = -1;
         while (option != 0) {
             var menu = """
-                    1 - Search Serie
-                    2 - Search Episode
+                    1 - Search Series
+                    2 - Search Episode for series
                     3 - Show searched series
-                                    
+                    4 - Search Series from Title
+                    5 - Search Series from actor
+                    6 - Top 5 Series
+                    7 - Search Series from category
+                    8 - Search for series with less than X seasons                                    
                     0 - exit                                 
                     """;
 
@@ -52,6 +53,20 @@ public class Main {
                 case 3:
                     showSearchedSerie();
                     break;
+                case 4:
+                    searchSerieForTitle();
+                    break;
+                case 5:
+                    searchSeriesForActor();
+                    break;
+                case 6:
+                    searchTop5Series();
+                    break;
+                case 7:
+                    searchSerieForCategory();
+                    break;
+                case 8:
+                    filterByNumberOfSeasons();
                 case 0:
                     System.out.println("exit...");
                     break;
@@ -61,34 +76,43 @@ public class Main {
         }
     }
 
+
+
+    /**
+     * Busca uma série e salva no banco de dados.
+     */
     private void searchWebSerie() {
         SerieData data = getDadosSerie();
         Serie serie = new Serie(data);
-        //serieData.add(data);
-        repository.save(serie); // salva a serie no banco de dados
+        repository.save(serie);
         System.out.println(data);
     }
 
+    /**
+     * Solicita o nome da série e busca seus dados via API.
+     * @return dados da série.
+     */
     private SerieData getDadosSerie() {
-        System.out.println("Type the serie that you want: ");
+        System.out.println("Type the series that you want: ");
         var serieName = scanner.nextLine();
         var json = apiConsumption.getData(ADDRESS + serieName.replace(" ", "+") + API_KEY);
-        SerieData data = convertData.getData(json, SerieData.class);
-        return data;
+        return convertData.getData(json, SerieData.class);
     }
 
-    private void searchEpisodeForSerie(){
+    /**
+     * Exibe todos os episódios de uma série selecionada.
+     */
+    private void searchEpisodeForSerie() {
         showSearchedSerie();
-        System.out.println("Chose one serie to see all episodes: ");
+        System.out.println("Chose one series to see all episodes: ");
         var serieName = scanner.nextLine();
 
-        Optional<Serie> serie = series.stream()
-                .filter(s -> s.getTitle().toLowerCase().contains(serieName.toLowerCase()))
-                .findFirst();
+        Optional<Serie> serie = repository.findByTitleContainingIgnoreCase(serieName);
 
         if(serie.isPresent()) {
             var serieFounded = serie.get();
             List<SeasonData> seasonsData = new ArrayList<>();
+
             for (int i = 1; i <= serieFounded.getTotalSeasons(); i++) {
                 var json = apiConsumption.getData(ADDRESS + serieFounded.getTitle().replace(" ", "+") + "&season=" + i + API_KEY);
                 SeasonData seasonData = convertData.getData(json, SeasonData.class);
@@ -107,12 +131,94 @@ public class Main {
         }
     }
 
-    private void showSearchedSerie(){
-        series = repository.findAll(); // pega todas as series do repositorio no banco de dados
+    /**
+     * Exibe todas as séries armazenadas, ordenadas por gênero.
+     */
+    private void showSearchedSerie() {
+        series = repository.findAll();
         series.stream()
                 .sorted(Comparator.comparing(Serie::getGenre))
                 .forEach(System.out::println);
     }
+
+    /**
+     * Busca uma série pelo título e exibe os dados se encontrada.
+     */
+    private void searchSerieForTitle() {
+        System.out.println("Search a series from Title: ");
+        var serieName = scanner.nextLine();
+        Optional<Serie> searchedSerie = repository.findByTitleContainingIgnoreCase(serieName);
+
+        if (searchedSerie.isPresent()) {
+            System.out.println("Series Data: " + searchedSerie.get());
+        } else {
+            System.out.println("Series not found");
+        }
+    }
+
+    /**
+     *  Busca series na quais um ator ja participou, a serie precisa ter uma avaliacao minima e um ator para ser buscada.
+     */
+    private void searchSeriesForActor() {
+       System.out.println("Type a Actor that you like for search the series that he has participated: ");
+        var actor = scanner.nextLine();
+        System.out.println("Enter the minimum rating that films must have: ");
+        var rating = scanner.nextDouble();
+
+        List<Serie> fSeries = repository.findByActorsContainingIgnoreCaseAndRatingGreaterThanEqual(actor, rating);
+        System.out.println("Series that " + actor + " has worked: ");
+        fSeries.forEach(s ->
+                System.out.println(s.getTitle() + " rating: " + s.getRating()));
+
+    }
+
+    /**
+     *  Busca o as top 5 series no banco de dados
+     */
+    private void searchTop5Series() {
+        // acha o top 5 na ordem decrecente
+        List<Serie> topFive = repository.findTop5ByOrderByRatingDesc();
+        topFive.forEach(s ->
+                System.out.println(s.getTitle() + " rating: " + s.getRating()));
+    }
+
+    /**
+     *  Busca uma serie por categoria
+     */
+    private void searchSerieForCategory() {
+        System.out.println("Enter the category: ");
+        var genreName = scanner.nextLine();
+        try {
+            Category category = Category.fromString(genreName);
+            List<Serie> seriesForCategory = repository.findByGenre(category);
+            System.out.println("Series for Category " + genreName);
+            if (seriesForCategory.isEmpty()) {
+                System.out.println("We don't have a series with this category yet");
+            } else {
+                seriesForCategory.forEach(s ->
+                        System.out.println(s.getTitle() + " - Category: " + s.getGenre()));
+            }
+        } catch (IllegalArgumentException e){
+            System.out.println(e.getMessage());
+        }
+
+    }
+
+    /**
+     *  Busca uma serie com menos  temporadas do que o usuário digita, o usuario também digita o numero mínimo das avaliações
+     */
+    private void filterByNumberOfSeasons() {
+        System.out.println("Type a number of season that you want ");
+        int qntSeason = scanner.nextInt();
+        System.out.println("Enter the minimum rating that films must have: ");
+        var rating = scanner.nextDouble();
+        List<Serie> filterSeries = repository.findByTotalSeasonsLessThanEqualAndRatingGreaterThanEqual(qntSeason, rating);
+        System.out.println("-----Filter Series-----");
+        filterSeries.forEach(s ->
+                System.out.println(s.getTitle() + " - Number of Seasons: " + s.getTotalSeasons() + " | Rating: " + s.getRating()));
+    }
+
+
 
 
 //        System.out.println("type the serie for search");

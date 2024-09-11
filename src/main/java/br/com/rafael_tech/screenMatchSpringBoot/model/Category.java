@@ -21,6 +21,6 @@ public enum Category {
                 return category;
             }
         }
-        throw new IllegalArgumentException("Nenhuma categoria encontrada para a string fornecida: " + text);
+        throw new IllegalArgumentException("no category found for given string: "  + text);
     }
 }
