@@ -97,10 +97,10 @@ public class Episode {
 
     @Override
     public String toString() {
-        return "season: " + seasonNumber +
-                " | title: " + title +
-                " | episodeNumber=" + episodeNumber +
-                " | realeaseDate=" + realeaseDate +
-                " | rating=" + rating;
+        return "{season: " + seasonNumber +
+                " title : " + title +
+                " episodeNumber : " + episodeNumber +
+                " realeaseDate : " + realeaseDate +
+                " rating = " + rating + "}\n";
     }
 }
