@@ -1,11 +1,9 @@
 package br.com.rafael_tech.screenMatchSpringBoot.model;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.ManyToAny;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.SortedMap;
 
 @Entity
 @Table(name = "episodios")
