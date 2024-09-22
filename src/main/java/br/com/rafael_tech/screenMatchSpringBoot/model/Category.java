@@ -1,8 +1,8 @@
 package br.com.rafael_tech.screenMatchSpringBoot.model;
 
 public enum Category {
-    ACTION("Action"),
-    COMEDY("Comedy"),
+    ACTION("Ação"),
+    COMEDY("Comédia"),
     ROMANCE("Romance"),
     DRAMA("Drama"),
     CRIME("Crime"),
